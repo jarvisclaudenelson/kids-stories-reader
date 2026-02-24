@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Park City Ski Planner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen">
+  <header class="bg-gradient-to-r from-blue-600 to-purple-600 p-4">
+    <h1 class="text-2xl font-bold">🏔️ Park City Ski Planner</h1>
+    <p class="text-sm opacity-90">Plan your perfect day on the mountain</p>
+  </header>
+
+  <div class="flex border-b border-slate-700">
+    <button onclick="setTab('recommend')" id="tab-recommend" class="flex-1 p-3 font-medium bg-slate-800 border-b-2 border-blue-500">Find Runs</button>
+    <button onclick="setTab('tour')" id="tab-tour" class="flex-1 p-3 font-medium bg-slate-900 text-slate-400">Mountain Tour</button>
+    <button onclick="setTab('eod')" id="tab-eod" class="flex-1 p-3 font-medium bg-slate-900 text-slate-400">End of Day</button>
+  </div>
+
+  <main class="p-4">
+    <div class="bg-slate-800 rounded-lg p-4 mb-6">
+      <h2 class="font-semibold mb-3">Filters</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Difficulty</label>
+          <select id="difficulty" onchange="filterTrails()" class="w-full bg-slate-700 rounded p-2">
+            <option value="all">All Levels</option>
+            <option value="green">🟢 Easy</option>
+            <option value="blue">🔵 Intermediate</option>
+            <option value="black">⚫ Advanced</option>
+            <option value="double-black">⚫⚫ Expert</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Terrain Type</label>
+          <select id="terrainType" onchange="filterTrails()" class="w-full bg-slate-700 rounded p-2">
+            <option value="all">All Terrain</option>
+            <option value="groomed">Groomed</option>
+            <option value="moguls">Moguls</option>
+            <option value="trees">Trees</option>
+            <option value="bowl">Bowls</option>
+            <option value="terrain-park">Terrain Park</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Area</label>
+          <select id="area" onchange="filterTrails()" class="w-full bg-slate-700 rounded p-2">
+            <option value="all">Whole Mountain</option>
+            <option value="Canyons">Canyons</option>
+            <option value="Park City">Park City</option>
+          </select>
+        </div>
+        <div class="flex items-center pt-6">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="showOpenOnly" onchange="filterTrails()" class="w-4 h-4">
+            <span class="text-sm">Show open only</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div id="recommend-view">
+      <h2 class="text-xl font-semibold mb-4" id="trail-count">Recommended Runs (36)</h2>
+      <div id="trails-list" class="space-y-3"></div>
+    </div>
+
+    <div id="tour-view" class="hidden">
+      <h2 class="text-xl font-semibold mb-4">Mountain Tour</h2>
+      <p class="text-slate-400 mb-4">Suggested progression to see the best of the mountain</p>
+      <div class="space-y-4">
+        <div class="bg-slate-800 rounded-lg p-4">
+          <span class="bg-blue-600 px-2 py-1 rounded text-sm font-medium">Morning</span>
+          <p class="font-medium mt-2">Start at Canyons - take Quicksilver Gondola for great runs</p>
+          <div class="mt-2 flex gap-2 flex-wrap">
+            <span class="text-xs bg-slate-700 px-2 py-1 rounded">🎡 Quicksilver Gondola</span>
+          </div>
+        </div>
+        <div class="bg-slate-800 rounded-lg p-4">
+          <span class="bg-blue-600 px-2 py-1 rounded text-sm font-medium">Mid-Day</span>
+          <p class="font-medium mt-2">Hit the expert bowls at Tombstone and Peak 5</p>
+          <div class="mt-2 flex gap-2 flex-wrap">
+            <span class="text-xs bg-slate-700 px-2 py-1 rounded">🎡 Tombstone Express</span>
+            <span class="text-xs bg-slate-700 px-2 py-1 rounded">🎡 Peak 5</span>
+          </div>
+        </div>
+        <div class="bg-slate-800 rounded-lg p-4">
+          <span class="bg-blue-600 px-2 py-1 rounded text-sm font-medium">Afternoon</span>
+          <p class="font-medium mt-2">Finish at Park City - cruise Payday back to village</p>
+          <div class="mt-2 flex gap-2 flex-wrap">
+            <span class="text-xs bg-slate-700 px-2 py-1 rounded">🎡 Payday Express</span>
+            <span class="text-xs bg-slate-700 px-2 py-1 rounded">🎡 Town Lift</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="eod-view" class="hidden">
+      <h2 class="text-xl font-semibold mb-4">End of Day Planning</h2>
+      <div class="mb-4">
+        <label class="block text-sm text-slate-400 mb-1">Where are you ending?</label>
+        <select id="endLodge" onchange="showRoute()" class="w-full bg-slate-700 rounded p-2">
+          <option value="">Select your exit...</option>
+          <option value="Canyons Village">Canyons Village</option>
+          <option value="Park City Mountain Village">Park City Mountain Village</option>
+          <option value="Silver Star Lodge">Silver Star Lodge</option>
+        </select>
+      </div>
+      <div id="route-result" class="hidden bg-slate-800 rounded-lg p-4">
+        <h3 class="font-semibold mb-2" id="route-title"></h3>
+        <p class="text-slate-300 mb-3" id="route-text"></p>
+        <div class="flex gap-2 flex-wrap mb-2" id="route-lifts"></div>
+        <p class="text-sm text-slate-400" id="route-time"></p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    var trails = [
+      { name: 'Dreamcatcher', difficulty: 'green', type: 'groomed', lift: 'Dreamcatcher', area: 'Canyons' },
+      { name: 'High Meadow', difficulty: 'green', type: 'groomed', lift: 'High Meadow Express', area: 'Canyons' },
+      { name: 'Saddleback', difficulty: 'green', type: 'groomed', lift: 'Saddleback Express', area: 'Canyons' },
+      { name: 'First Time', difficulty: 'green', type: 'groomed', lift: 'First Time', area: 'Park City' },
+      { name: 'Eagle', difficulty: 'green', type: 'groomed', lift: 'Eagle', area: 'Park City' },
+      { name: 'Lower Payday', difficulty: 'green', type: 'groomed', lift: 'Town Lift', area: 'Park City' },
+      { name: 'Red Pine', difficulty: 'blue', type: 'groomed', lift: 'Red Pine Gondola', area: 'Canyons' },
+      { name: 'Crescent', difficulty: 'blue', type: 'groomed', lift: 'Crescent Express', area: 'Canyons' },
+      { name: 'Day Break', difficulty: 'blue', type: 'groomed', lift: 'Day Break', area: 'Canyons' },
+      { name: 'Bonanza', difficulty: 'blue', type: 'groomed', lift: 'Bonanza Express', area: 'Canyons' },
+      { name: 'King Con', difficulty: 'blue', type: 'groomed', lift: 'King Con Express', area: 'Canyons' },
+      { name: 'Ninety-Nine', difficulty: 'blue', type: 'groomed', lift: 'Ninety-Nine Express', area: 'Canyons' },
+      { name: 'Payday', difficulty: 'blue', type: 'groomed', lift: 'Payday Express', area: 'Park City' },
+      { name: 'Silver Star', difficulty: 'blue', type: 'groomed', lift: 'Silver Star', area: 'Park City' },
+      { name: 'Silverlod', difficulty: 'blue', type: 'groomed', lift: 'Silverlod Express', area: 'Park City' },
+      { name: 'Pioneer', difficulty: 'blue', type: 'groomed', lift: 'Pioneer', area: 'Park City' },
+      { name: 'Thaynes', difficulty: 'blue', type: 'groomed', lift: 'Thaynes', area: 'Park City' },
+      { name: 'Mutherlode', difficulty: 'black', type: 'groomed', lift: 'Mutherlode Express', area: 'Canyons' },
+      { name: 'Iron Mountain', difficulty: 'black', type: 'groomed', lift: 'Iron Mountain Express', area: 'Canyons' },
+      { name: 'Peak 5', difficulty: 'black', type: 'groomed', lift: 'Peak 5', area: 'Canyons' },
+      { name: 'Bounty', difficulty: 'black', type: 'moguls', lift: 'Saddleback Express', area: 'Canyons' },
+      { name: 'Slide', difficulty: 'black', type: 'moguls', lift: 'Peak 5', area: 'Canyons' },
+      { name: 'Junior', difficulty: 'black', type: 'groomed', lift: 'Pioneer', area: 'Park City' },
+      { name: 'Upper Payday', difficulty: 'black', type: 'groomed', lift: 'Payday Express', area: 'Park City' },
+      { name: "McConkey's", difficulty: 'black', type: 'moguls', lift: 'Iron Mountain Express', area: 'Park City' },
+      { name: 'Tombstone', difficulty: 'double-black', type: 'bowl', lift: 'TomBSTONE Express', area: 'Canyons' },
+      { name: 'The Fortress', difficulty: 'double-black', type: 'trees', lift: 'Peak 5', area: 'Canyons' },
+      { name: 'Kelly Canyon', difficulty: 'double-black', type: 'trees', lift: 'Sun Peak Express', area: 'Canyons' },
+      { name: '999', difficulty: 'double-black', type: 'bowl', lift: 'Ninety-Nine Express', area: 'Canyons' },
+      { name: 'Lemon Twist', difficulty: 'double-black', type: 'moguls', lift: 'Pioneer', area: 'Park City' },
+      { name: 'Killed', difficulty: 'double-black', type: 'trees', lift: 'Timberline', area: 'Park City' },
+      { name: 'Fletcher', difficulty: 'double-black', type: 'trees', lift: 'Thaynes', area: 'Park City' },
+      { name: 'Halfpipe', difficulty: 'double-black', type: 'terrain-park', lift: 'Orange Bubble Express', area: 'Park City' }
+    ];
+
+    var diffColors = { green: 'bg-green-500', blue: 'bg-blue-500', black: 'bg-gray-800', 'double-black': 'bg-purple-900' };
+    var diffLabels = { green: 'Easy', blue: 'Intermediate', black: 'Advanced', 'double-black': 'Expert' };
+
+    function setTab(tab) {
+      var tabs = ['recommend', 'tour', 'eod'];
+      tabs.forEach(function(t) {
+        var view = document.getElementById(t + '-view');
+        var btn = document.getElementById('tab-' + t);
+        if (t === tab) {
+          view.classList.remove('hidden');
+          btn.className = 'flex-1 p-3 font-medium bg-slate-800 border-b-2 border-blue-500';
+        } else {
+          view.classList.add('hidden');
+          btn.className = 'flex-1 p-3 font-medium bg-slate-900 text-slate-400';
+        }
+      });
+    }
+
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function createTrailCard(t) {
+      var card = document.createElement('div');
+      card.className = 'bg-slate-800 rounded-lg p-4';
+      
+      var diffColor = diffColors[t.difficulty] || 'bg-gray-400';
+      var diffLabel = diffLabels[t.difficulty] || t.difficulty;
+      
+      var innerHTML = '<div class="flex justify-between items-start">' +
+        '<div><h3 class="font-semibold">' + escapeHtml(t.name) + '</h3><p class="text-sm text-slate-400">' + escapeHtml(t.area) + '</p></div>' +
+        '<span class="px-2 py-1 rounded text-xs ' + diffColor + '">' + diffLabel + '</span>' +
+      '</div>' +
+      '<div class="mt-2 flex flex-wrap gap-2">' +
+        '<span class="text-xs bg-slate-700 px-2 py-1 rounded">' + escapeHtml(t.type) + '</span>' +
+        '<span class="text-xs bg-slate-700 px-2 py-1 rounded">🎡 ' + escapeHtml(t.lift) + '</span>' +
+      '</div>';
+      
+      card.innerHTML = innerHTML;
+      return card;
+    }
+
+    function filterTrails() {
+      var diff = document.getElementById('difficulty').value;
+      var terrain = document.getElementById('terrainType').value;
+      var area = document.getElementById('area').value;
+
+      var filtered = trails.filter(function(t) {
+        if (diff !== 'all' && t.difficulty !== diff) return false;
+        if (terrain !== 'all' && t.type !== terrain) return false;
+        if (area !== 'all' && t.area !== area) return false;
+        return true;
+      });
+
+      document.getElementById('trail-count').textContent = 'Recommended Runs (' + filtered.length + ')';
+      
+      var list = document.getElementById('trails-list');
+      list.innerHTML = '';
+      filtered.forEach(function(t) {
+        list.appendChild(createTrailCard(t));
+      });
+    }
+
+    function showRoute() {
+      var lodge = document.getElementById('endLodge').value;
+      var result = document.getElementById('route-result');
+      if (!lodge) { 
+        result.classList.add('hidden'); 
+        return; 
+      }
+      
+      var routes = {
+        'Canyons Village': { text: 'Take Peak 5 → Red Pine Gondola → Village', lifts: ['Peak 5', 'Red Pine Gondola'], time: '~15 min' },
+        'Park City Mountain Village': { text: 'Take Town Lift or Payday Express directly to base', lifts: ['Town Lift', 'Payday Express'], time: '~20 min' },
+        'Silver Star Lodge': { text: 'Take Silver Star lift down', lifts: ['Silver Star'], time: '~10 min' }
+      };
+      
+      var r = routes[lodge];
+      if (!r) return;
+      
+      document.getElementById('route-title').textContent = 'Route to ' + lodge;
+      document.getElementById('route-text').textContent = r.text;
+      
+      var liftsDiv = document.getElementById('route-lifts');
+      liftsDiv.innerHTML = '';
+      r.lifts.forEach(function(l) {
+        var span = document.createElement('span');
+        span.className = 'text-xs bg-slate-700 px-2 py-1 rounded';
+        span.textContent = '🎡 ' + l;
+        liftsDiv.appendChild(span);
+      });
+      
+      document.getElementById('route-time').textContent = 'Est. time: ' + r.time;
+      result.classList.remove('hidden');
+    }
+
+    // Initialize
+    filterTrails();
+  </script>
+</body>
+</html>
