@@ -1,6 +1,117 @@
 import { useState, useMemo } from 'react'
 import { lifts, trails, lodges } from './data/parkCityData'
 
+// New function to plan the day using connection metadata
+function planMyDay(userPrefs, startBase, endBase, timeAvailable, lifts, runs) {
+  let route = [];
+  // 1. Start at startBase - find lifts serving that base
+  let availableLifts = lifts.filter(lift => lift.base === startBase);
+  if (!availableLifts.length) return route;
+  // 2. Take one of those lifts UP (choose the first for simplicity)
+  let currentLift = availableLifts[0];
+  route.push({ lift: currentLift.id });
+  let elapsedTime = 0;
+
+  while (elapsedTime < timeAvailable && currentLift) {
+    // 3. Filter runs to only those served by that lift: only use runs where run.lift is in the current lift's connectsTo
+    let validRuns = runs.filter(run => currentLift.connectsTo.includes(run.lift));
+    // Further filter runs by user preferences (difficulty & terrain)
+    validRuns = validRuns.filter(run => run.difficulty === userPrefs.difficulty && run.terrain === userPrefs.terrain);
+    if (!validRuns.length) break;
+
+    // 4. Pick a run matching user preferences (choose first for simplicity)
+    let chosenRun = validRuns[0];
+    route.push({ run: chosenRun.id });
+    // simulate run duration; assume each run has a 'duration' field, defaulting to 5 if missing
+    elapsedTime += chosenRun.duration || 5;
+
+    // 5. After skiing the run, look at its connectsToLifts array
+    let nextLiftIds = chosenRun.connectsToLifts;
+    if (!nextLiftIds || !nextLiftIds.length) break;
+
+    // 6. Pick the next lift from that array - only use lifts from the previous run's connectsToLifts
+    let nextLifts = lifts.filter(lift => nextLiftIds.includes(lift.id));
+    if (!nextLifts.length) break;
+    currentLift = nextLifts[0];
+    route.push({ lift: currentLift.id });
+    // simulate lift duration; assume each lift has a 'duration' field, defaulting to 2 if missing
+    elapsedTime += currentLift.duration || 2;
+
+    // 8. End at endBase if reached
+    if (currentLift.base === endBase) {
+      break;
+    }
+
+    // Loop continues until time runs out
+  }
+
+  return route;
+}
+) {
+  // Start at startBase
+  let currentLocation = 'startBase';
+  let itinerary = [];
+  const timeLimit = Date.now() + getAvailableTime(); // hypothetical function returning available time in ms
+
+  // Helper to pick a random element from an array
+  function pickRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  // Loop chaining lifts and runs until time is up
+  while (Date.now() < timeLimit) {
+    let validLifts = [];
+    // Determine valid lifts from current location
+    if (currentLocation === 'startBase') {
+      // For startBase, assume lifts have an 'origin' field set to 'startBase'
+      validLifts = lifts.filter(lift => lift.origin === 'startBase');
+    } else {
+      // Otherwise, find the lift whose id matches currentLocation or is connected from it
+      // First, get the lift corresponding to currentLocation if it exists
+      const currentLift = lifts.find(lift => lift.id === currentLocation);
+      if (currentLift) {
+        // Use connection metadata: lifts that are connected from the current lift
+        validLifts = lifts.filter(lift => currentLift.connectsTo && currentLift.connectsTo.includes(lift.id));
+      } else {
+        // If currentLocation is not a lift id, try to see if any lift has a connection from currentLocation
+        validLifts = lifts.filter(lift => lift.id === currentLocation);
+      }
+    }
+
+    if (validLifts.length === 0) {
+      break; // no valid lifts to continue
+    }
+
+    // Choose a lift and add to itinerary
+    const chosenLift = pickRandom(validLifts);
+    itinerary.push({ type: 'lift', id: chosenLift.id });
+
+    // Now, from lifts, find a run that connects to this lift using run's metadata
+    const validRuns = runs.filter(run => run.connectsToLifts && run.connectsToLifts.includes(chosenLift.id));
+    if (validRuns.length === 0) {
+      break; // no run available for this lift
+    }
+
+    const chosenRun = pickRandom(validRuns);
+    itinerary.push({ type: 'run', id: chosenRun.id });
+
+    // Set the next location from the run's connections, if any
+    if (chosenRun.connectsToLifts && chosenRun.connectsToLifts.length > 0) {
+      currentLocation = pickRandom(chosenRun.connectsToLifts);
+    } else {
+      break; // no further connections available
+    }
+  }
+
+  // Ensure we end at 'endBase'
+  if (itinerary.length === 0 || itinerary[itinerary.length - 1].id !== 'endBase') {
+    itinerary.push({ type: 'base', id: 'endBase' });
+  }
+
+  return itinerary;
+}
+
+
 function App() {
   const [difficulty, setDifficulty] = useState('all')
   const [terrainType, setTerrainType] = useState('all')
@@ -70,7 +181,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-900 text-white">
-      <header className="bg-gradient-to-r from-blue-600 to-purple-600 p-4">
+      <header className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 md:p-4">
         <h1 className="text-2xl font-bold">🏔️ Park City Ski Planner</h1>
         <p className="text-sm opacity-90">Plan your perfect day on the mountain</p>
       </header>
@@ -78,15 +189,16 @@ function App() {
       <div className="flex border-b border-slate-700">
         {[{ id: 'recommend', label: 'Find Runs' }, { id: 'tour', label: 'Mountain Tour' }, { id: 'eod', label: 'End of Day' }].map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 p-3 font-medium ${activeTab.tab.id === tab.id ? 'bg-slate-800 border-b-2 border-blue-500' : 'bg-slate-900 text-slate-400'}`}>
+            className={`flex-1 p-3 font-medium ${activeTab === tab.id ? 'bg-slate-800 border-b-2 border-blue-500' : 'bg-slate-900 text-slate-400'}`}>
             {tab.label}
           </button>
         ))}
       </div>
 
       <main className="p-4">
-        <div className="bg-slate-800 rounded-lg p-4 mb-6">
-          <h2 className="font-semibold mb-3">Filters</h2>
+        <details className="bg-slate-800 rounded-lg p-2 mb-4 md:p-4 md:mb-6">
+          <summary className="cursor-pointer text-lg font-semibold text-white">Filters</summary>
+          <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-slate-400 mb-1">Difficulty</label>
