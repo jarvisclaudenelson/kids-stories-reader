@@ -3,6 +3,27 @@ import './App.css'
 
 const STORAGE_KEY = 'story-reader-progress'
 
+// Illustration mapping - chapter index -> { page range -> image }
+const CHAPTER_IMAGES = {
+  0: [ // Chapter 1
+    { range: [0, 2], img: '/images/chapter1/crash.png', alt: 'The crash' },
+    { range: [3, 6], img: '/images/chapter1/forest.png', alt: 'Alien forest' },
+    { range: [7, 9], img: '/images/chapter1/rockslide.png', alt: 'The rockslide' },
+    { range: [10, 20], img: '/images/chapter1/ending.png', alt: 'Journey ahead' },
+  ]
+}
+
+function getIllustration(chapterIndex, pageIndex) {
+  const chapterImgs = CHAPTER_IMAGES[chapterIndex]
+  if (!chapterImgs) return null
+  for (const item of chapterImgs) {
+    if (pageIndex >= item.range[0] && pageIndex <= item.range[1]) {
+      return item
+    }
+  }
+  return null
+}
+
 function getStoredProgress() {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
@@ -111,6 +132,8 @@ function App() {
     saveProgress(currentChapter, currentPage)
   }, [currentChapter, currentPage])
 
+  const illustration = getIllustration(currentChapter, currentPage)
+
   const goToChapter = (index) => {
     setCurrentChapter(index)
   }
@@ -157,6 +180,11 @@ function App() {
         const width = window.innerWidth
         x < width / 2 ? prevPage() : nextPage()
       }}>
+        {illustration && (
+          <div className="illustration">
+            <img src={illustration.img} alt={illustration.alt} />
+          </div>
+        )}
         <div className="page" style={{ fontSize: `${fontSize}px` }}>
           {pages[currentPage] || 'Loading...'}
         </div>

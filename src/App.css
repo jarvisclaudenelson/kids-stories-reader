@@ -98,6 +98,19 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+.illustration {
+  margin-bottom: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.illustration img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 .page {
   line-height: 1.8;
   color: #d0d0d0;
