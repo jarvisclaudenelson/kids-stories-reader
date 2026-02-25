@@ -115,7 +115,7 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>📚 Kids Stories</h1>
+        <h1>📚 The Nelson Boys' Adventures</h1>
         <div className="font-controls">
           <button onClick={() => setFontSize(Math.max(14, fontSize - 2))}>A-</button>
           <button onClick={() => setFontSize(Math.min(28, fontSize + 2))}>A+</button>
