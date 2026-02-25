@@ -3,25 +3,21 @@ import './App.css'
 
 const STORAGE_KEY = 'story-reader-progress'
 
-// Illustration mapping - chapter index -> { page range -> image }
+// Illustration mapping - chapter index -> exact page -> image
 const CHAPTER_IMAGES = {
-  0: [ // Chapter 1
-    { range: [0, 2], img: '/images/chapter1/crash.png', alt: 'The crash' },
-    { range: [3, 6], img: '/images/chapter1/forest.png', alt: 'Alien forest' },
-    { range: [7, 9], img: '/images/chapter1/rockslide.png', alt: 'The rockslide' },
-    { range: [10, 20], img: '/images/chapter1/ending.png', alt: 'Journey ahead' },
-  ]
+  0: { // Chapter 1
+    0: { img: '/images/chapter1/page1-crash.png', alt: 'The crash' },
+    3: { img: '/images/chapter1/page2-forest.png', alt: 'Alien forest' },
+    7: { img: '/images/chapter1/page3-rockslide.png', alt: 'The rockslide' },
+    10: { img: '/images/chapter1/page4-ending.png', alt: 'Journey ahead' },
+  }
 }
 
 function getIllustration(chapterIndex, pageIndex) {
   const chapterImgs = CHAPTER_IMAGES[chapterIndex]
   if (!chapterImgs) return null
-  for (const item of chapterImgs) {
-    if (pageIndex >= item.range[0] && pageIndex <= item.range[1]) {
-      return item
-    }
-  }
-  return null
+  // Return image only if it exists for this exact page
+  return chapterImgs[pageIndex] || null
 }
 
 function getStoredProgress() {
