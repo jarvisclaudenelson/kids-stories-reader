@@ -7,9 +7,14 @@ const STORAGE_KEY = 'story-reader-progress'
 const CHAPTER_IMAGES = {
   0: { // Chapter 1
     0: { img: '/images/chapter1/page1-crash.png', alt: 'The crash' },
-    3: { img: '/images/chapter1/page2-forest.png', alt: 'Alien forest' },
-    7: { img: '/images/chapter1/page3-rockslide.png', alt: 'The rockslide' },
-    10: { img: '/images/chapter1/page4-ending.png', alt: 'Journey ahead' },
+    1: { img: '/images/chapter1/page2-forest.png', alt: 'Alien forest' },
+    2: { img: '/images/chapter1/page3-rockslide.png', alt: 'The rockslide' },
+    3: { img: '/images/chapter1/page4-spire.png', alt: 'Crystal spire' },
+  },
+  1: { // Chapter 2
+    0: { img: '/images/chapter2/page1-spire.png', alt: 'Crystal tower' },
+    1: { img: '/images/chapter2/page2-colony.png', alt: 'The colony' },
+    2: { img: '/images/chapter2/page3-light.png', alt: 'Light beam' },
   }
 }
 
