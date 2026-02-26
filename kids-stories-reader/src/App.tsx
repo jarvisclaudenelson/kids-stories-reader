@@ -87,11 +87,28 @@ function App() {
             fetch(f.download_url).then(res => res.text())
           )
         ).then(contents => {
-          setChapters(chapterFiles.map((f: any, i: number) => ({
+          const loadedChapters = chapterFiles.map((f: any, i: number) => ({
             name: f.name.replace('.md', '').replace('chapter-', 'Chapter '),
             path: f.path,
             content: contents[i]
-          })))
+          }))
+          setChapters(loadedChapters)
+          
+          // Pre-compute page counts for all chapters
+          const counts: Record<number, number> = {}
+          loadedChapters.forEach((ch: Chapter, i: number) => {
+            const cleaned = ch.content
+              .replace(/^# .*$/gm, '')
+              .replace(/\*\*(.*?)\*\*/g, '$1')
+              .replace(/\*(.*?)\*/g, '$1')
+              .replace(/---/g, '')
+              .replace(/\*(.*?)$/gm, '')
+              .replace(/\((.*?)\)/g, '')
+              .trim()
+            counts[i] = getPages(cleaned).length
+          })
+          setChapterPageCounts(counts)
+          
           setLoading(false)
         })
       })
@@ -113,8 +130,11 @@ function App() {
         .trim()
       const newPages = getPages(content)
       setPages(newPages)
-      // Track page count for this chapter
-      setChapterPageCounts(prev => ({ ...prev, [currentChapter]: newPages.length }))
+      // Don't auto-reset page - navigation functions handle that
+      // Just ensure page is valid for this chapter
+      if (currentPage >= newPages.length) {
+        setCurrentPage(Math.max(0, newPages.length - 1))
+      }
     }
   }, [currentChapter, chapters])
 
@@ -123,6 +143,7 @@ function App() {
       setCurrentPage(currentPage + 1)
     } else if (currentChapter < chapters.length - 1) {
       setCurrentChapter(currentChapter + 1)
+      setCurrentPage(0)
     }
   }
 
@@ -140,6 +161,7 @@ function App() {
 
   const goToChapter = (index: number) => {
     setCurrentChapter(index)
+    setCurrentPage(0)
   }
 
   if (loading) {
