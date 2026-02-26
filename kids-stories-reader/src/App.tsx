@@ -7,6 +7,27 @@ interface Chapter {
   content: string
 }
 
+// Illustration mapping - chapter index -> exact page -> image
+const CHAPTER_IMAGES: Record<number, Record<number, { img: string; alt: string }>> = {
+  0: { // Chapter 1
+    0: { img: '/images/chapter1/page1-crash.png', alt: 'The crash' },
+    1: { img: '/images/chapter1/page2-forest.png', alt: 'Alien forest' },
+    2: { img: '/images/chapter1/page3-rockslide.png', alt: 'The rockslide' },
+    3: { img: '/images/chapter1/page4-spire.png', alt: 'Crystal spire' },
+  },
+  1: { // Chapter 2
+    0: { img: '/images/chapter2/page1-spire.png', alt: 'Crystal tower' },
+    1: { img: '/images/chapter2/page2-colony.png', alt: 'The colony' },
+    2: { img: '/images/chapter2/page3-light.png', alt: 'Light beam' },
+  }
+}
+
+function getIllustration(chapterIndex: number, pageIndex: number) {
+  const chapterImgs = CHAPTER_IMAGES[chapterIndex]
+  if (!chapterImgs) return null
+  return chapterImgs[pageIndex] || null
+}
+
 function App() {
   const [chapters, setChapters] = useState<Chapter[]>([])
   const [currentChapter, setCurrentChapter] = useState(0)
@@ -14,6 +35,25 @@ function App() {
   const [fontSize, setFontSize] = useState(18)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [chapterPageCounts, setChapterPageCounts] = useState<Record<number, number>>({})
+
+  // Prevent screen from dimming
+  useEffect(() => {
+    let wakeLock: WakeLockSentinel | null = null
+    const requestWakeLock = async () => {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen')
+        }
+      } catch (err) {
+        // Wake lock not supported or denied
+      }
+    }
+    requestWakeLock()
+    return () => {
+      if (wakeLock) wakeLock.release()
+    }
+  }, [])
 
   const getPages = (content: string): string[] => {
     const paragraphs = content.split('\n\n').filter(p => p.trim())
@@ -71,8 +111,10 @@ function App() {
         .replace(/\*(.*?)$/gm, '')
         .replace(/\((.*?)\)/g, '')
         .trim()
-      setPages(getPages(content))
-      setCurrentPage(0)
+      const newPages = getPages(content)
+      setPages(newPages)
+      // Track page count for this chapter
+      setChapterPageCounts(prev => ({ ...prev, [currentChapter]: newPages.length }))
     }
   }, [currentChapter, chapters])
 
@@ -88,7 +130,11 @@ function App() {
     if (currentPage > 0) {
       setCurrentPage(currentPage - 1)
     } else if (currentChapter > 0) {
-      setCurrentChapter(currentChapter - 1)
+      // Go to previous chapter, last page
+      const prevChapter = currentChapter - 1
+      const prevChapterPageCount = chapterPageCounts[prevChapter] || 1
+      setCurrentChapter(prevChapter)
+      setCurrentPage(prevChapterPageCount - 1)
     }
   }
 
@@ -138,6 +184,11 @@ function App() {
         const width = window.innerWidth
         x < width / 2 ? prevPage() : nextPage()
       }}>
+        {getIllustration(currentChapter, currentPage) && (
+          <div className="illustration">
+            <img src={getIllustration(currentChapter, currentPage)?.img} alt={getIllustration(currentChapter, currentPage)?.alt} />
+          </div>
+        )}
         <div className="page" style={{ fontSize: `${fontSize}px` }}>
           {pages[currentPage] || 'Loading...'}
         </div>
