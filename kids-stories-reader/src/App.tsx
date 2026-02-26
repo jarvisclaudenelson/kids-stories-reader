@@ -138,11 +138,6 @@ function App() {
         .trim()
       const newPages = getPages(content)
       setPages(newPages)
-      // Don't auto-reset page - navigation functions handle that
-      // Just ensure page is valid for this chapter
-      if (currentPage >= newPages.length) {
-        setCurrentPage(Math.max(0, newPages.length - 1))
-      }
     }
   }, [currentChapter, chapters])
 
