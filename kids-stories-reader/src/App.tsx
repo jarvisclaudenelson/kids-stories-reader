@@ -28,14 +28,39 @@ function getIllustration(chapterIndex: number, pageIndex: number) {
   return chapterImgs[pageIndex] || null
 }
 
+const STORAGE_KEY = 'story-reader-progress'
+
+function getStoredProgress(): { chapter: number; page: number } | null {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    return stored ? JSON.parse(stored) : null
+  } catch {
+    return null
+  }
+}
+
+function saveProgress(chapter: number, page: number) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ chapter, page }))
+  } catch {
+    // ignore
+  }
+}
+
 function App() {
   const [chapters, setChapters] = useState<Chapter[]>([])
-  const [currentChapter, setCurrentChapter] = useState(0)
-  const [currentPage, setCurrentPage] = useState(0)
+  const stored = getStoredProgress()
+  const [currentChapter, setCurrentChapter] = useState(stored?.chapter ?? 0)
+  const [currentPage, setCurrentPage] = useState(stored?.page ?? 0)
   const [fontSize, setFontSize] = useState(18)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [chapterPageCounts, setChapterPageCounts] = useState<Record<number, number>>({})
+
+  // Save progress when chapter or page changes
+  useEffect(() => {
+    saveProgress(currentChapter, currentPage)
+  }, [currentChapter, currentPage])
 
   // Prevent screen from dimming
   useEffect(() => {
