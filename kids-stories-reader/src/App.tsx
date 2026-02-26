@@ -15,6 +15,7 @@ const CHAPTER_IMAGES: Record<number, Record<number, { img: string; alt: string }
     2: { img: '/images/chapter1/page3-rockslide.png', alt: 'The rockslide' },
     3: { img: '/images/chapter1/page4-spire.png', alt: 'Crystal spire' },
     7: { img: '/images/chapter1/page7.png', alt: 'Page 7' },
+    11: { img: '/images/chapter1/page11.png', alt: 'Page 11' },
   },
   1: { // Chapter 2
     0: { img: '/images/chapter2/page1-spire.png', alt: 'Crystal tower' },
