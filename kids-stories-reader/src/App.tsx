@@ -150,10 +150,9 @@ function App() {
     if (currentPage < pages.length - 1) {
       setCurrentPage(currentPage + 1)
     } else if (currentChapter < chapters.length - 1) {
-      // Going to next chapter
-      const nextChapter = currentChapter + 1
-      setCurrentChapter(nextChapter)
+      // Going to next chapter - set page to 0 first, then change chapter
       setCurrentPage(0)
+      setCurrentChapter(currentChapter + 1)
     }
   }
 
