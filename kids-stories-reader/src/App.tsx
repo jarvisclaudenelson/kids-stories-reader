@@ -55,7 +55,6 @@ function App() {
   const [fontSize, setFontSize] = useState(18)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [chapterPageCounts, setChapterPageCounts] = useState<Record<number, number>>({})
 
   // Save progress when chapter or page changes
   useEffect(() => {
@@ -118,22 +117,6 @@ function App() {
             content: contents[i]
           }))
           setChapters(loadedChapters)
-          
-          // Pre-compute page counts for all chapters
-          const counts: Record<number, number> = {}
-          loadedChapters.forEach((ch: Chapter, i: number) => {
-            const cleaned = ch.content
-              .replace(/^# .*$/gm, '')
-              .replace(/\*\*(.*?)\*\*/g, '$1')
-              .replace(/\*(.*?)\*/g, '$1')
-              .replace(/---/g, '')
-              .replace(/\*(.*?)$/gm, '')
-              .replace(/\((.*?)\)/g, '')
-              .trim()
-            counts[i] = getPages(cleaned).length
-          })
-          setChapterPageCounts(counts)
-          
           setLoading(false)
         })
       })
@@ -167,7 +150,9 @@ function App() {
     if (currentPage < pages.length - 1) {
       setCurrentPage(currentPage + 1)
     } else if (currentChapter < chapters.length - 1) {
-      setCurrentChapter(currentChapter + 1)
+      // Going to next chapter
+      const nextChapter = currentChapter + 1
+      setCurrentChapter(nextChapter)
       setCurrentPage(0)
     }
   }
@@ -176,11 +161,20 @@ function App() {
     if (currentPage > 0) {
       setCurrentPage(currentPage - 1)
     } else if (currentChapter > 0) {
-      // Go to previous chapter, last page
+      // Going to previous chapter - calculate last page from content directly
       const prevChapter = currentChapter - 1
-      const prevChapterPageCount = chapterPageCounts[prevChapter] || 1
+      const prevContent = chapters[prevChapter]?.content || ''
+      const cleaned = prevContent
+        .replace(/^# .*$/gm, '')
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/\*(.*?)\*/g, '$1')
+        .replace(/---/g, '')
+        .replace(/\*(.*?)$/gm, '')
+        .replace(/\((.*?)\)/g, '')
+        .trim()
+      const prevPages = getPages(cleaned)
       setCurrentChapter(prevChapter)
-      setCurrentPage(prevChapterPageCount - 1)
+      setCurrentPage(prevPages.length - 1)
     }
   }
 
