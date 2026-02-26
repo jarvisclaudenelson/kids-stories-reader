@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: system-ui, -apple-system, sans-serif;
+@layer base {
+  html {
+    /* Prevent horizontal overscroll on mobile */
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply bg-amber-50 dark:bg-gray-900;
+    overflow: hidden;
+    /* Prevent pull-to-refresh interfering with page swipes */
+    overscroll-behavior: none;
+  }
+}
+
+@layer utilities {
+  /* Full viewport height that accounts for mobile browser chrome */
+  .h-dvh {
+    height: 100dvh;
+  }
+}
+
+/* Smooth prose typography */
+.prose p {
+  margin-bottom: 1em;
+}
+
+.prose h1,
+.prose h2,
+.prose h3 {
+  margin-top: 0;
+  margin-bottom: 0.75em;
 }
