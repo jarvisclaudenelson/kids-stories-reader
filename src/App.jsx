@@ -50,6 +50,25 @@ function App() {
   const [fontSize, setFontSize] = useState(18)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [chapterPageCounts, setChapterPageCounts] = useState({})
+
+  // Prevent screen from dimming
+  useEffect(() => {
+    let wakeLock = null
+    const requestWakeLock = async () => {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen')
+        }
+      } catch (err) {
+        // Wake lock not supported or denied
+      }
+    }
+    requestWakeLock()
+    return () => {
+      if (wakeLock) wakeLock.release()
+    }
+  }, [])
 
   const getPages = (content) => {
     const paragraphs = content.split('\n\n').filter(p => p.trim())
@@ -107,8 +126,11 @@ function App() {
         .replace(/\*(.*?)$/gm, '')
         .replace(/\((.*?)\)/g, '')
         .trim()
-      setPages(getPages(content))
-      setCurrentPage(0)
+      const newPages = getPages(content)
+      setPages(newPages)
+      // Track page count for this chapter
+      setChapterPageCounts(prev => ({ ...prev, [currentChapter]: newPages.length }))
+      // Don't auto-reset page when chapter changes - handled in navigation
     }
   }, [currentChapter, chapters])
 
@@ -124,7 +146,11 @@ function App() {
     if (currentPage > 0) {
       setCurrentPage(currentPage - 1)
     } else if (currentChapter > 0) {
-      setCurrentChapter(currentChapter - 1)
+      // Go to previous chapter, last page
+      const prevChapter = currentChapter - 1
+      const prevChapterPageCount = chapterPageCounts[prevChapter] || 1
+      setCurrentChapter(prevChapter)
+      setCurrentPage(prevChapterPageCount - 1)
     }
   }
 
