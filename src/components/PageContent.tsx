@@ -16,16 +16,9 @@ export default function PageContent({ page, fontSize }: Props) {
   return (
     <div className="w-full h-full overflow-y-auto px-4 py-8 md:px-8">
       <div className={`flex gap-6 md:gap-8 ${hasImage ? 'flex-col md:flex-row md:items-start' : 'flex-col items-center'}`}>
-        {/* Text */}
-        <div
-          className={`font-story text-gray-800 dark:text-gray-100 ${FONT_SIZE_CLASSES[fontSize]} prose dark:prose-invert prose-headings:font-story prose-headings:text-amber-800 dark:prose-headings:text-amber-300 max-w-none ${hasImage ? 'flex-1 min-w-0' : 'w-full max-w-prose'}`}
-        >
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{page.content}</ReactMarkdown>
-        </div>
-
-        {/* Image — beside text on desktop, below on mobile */}
+        {/* Image — above text on mobile, beside text on desktop (right side) */}
         {page.imageUrl && !imgError && (
-          <div className="w-full md:w-72 lg:w-80 flex-shrink-0 rounded-xl overflow-hidden shadow-lg self-start">
+          <div className="w-full md:w-72 lg:w-80 flex-shrink-0 rounded-xl overflow-hidden shadow-lg self-start md:order-2">
             <img
               src={page.imageUrl}
               alt={`Illustration for page ${page.pageNumber}`}
@@ -35,6 +28,13 @@ export default function PageContent({ page, fontSize }: Props) {
             />
           </div>
         )}
+
+        {/* Text */}
+        <div
+          className={`font-story text-gray-800 dark:text-gray-100 ${FONT_SIZE_CLASSES[fontSize]} prose dark:prose-invert prose-headings:font-story prose-headings:text-amber-800 dark:prose-headings:text-amber-300 max-w-none ${hasImage ? 'flex-1 min-w-0 md:order-1' : 'w-full max-w-prose'}`}
+        >
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{page.content}</ReactMarkdown>
+        </div>
       </div>
     </div>
   );
