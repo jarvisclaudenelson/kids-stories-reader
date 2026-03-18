@@ -12,23 +12,27 @@ export default function PageContent({ page, fontSize }: Props) {
   const [imgError, setImgError] = useState(false);
 
   return (
-    <div className="flex flex-col items-center w-full h-full overflow-y-auto px-6 py-8 md:px-10">
+    <div className="flex flex-col w-full h-full">
+      {/* Sticky image — stays at top during scroll */}
       {page.imageUrl && !imgError && (
-        <div className="w-full max-w-md mb-6 rounded-xl overflow-hidden shadow-lg">
+        <div className="flex-shrink-0 w-full bg-amber-50 dark:bg-gray-800 border-b border-amber-200 dark:border-gray-700 shadow-md">
           <img
             src={page.imageUrl}
             alt={`Illustration for page ${page.pageNumber}`}
-            className="w-full h-auto object-cover"
+            className="w-full max-h-52 object-cover"
             onError={() => setImgError(true)}
             loading="lazy"
           />
         </div>
       )}
 
-      <div
-        className={`w-full max-w-prose font-story text-gray-800 dark:text-gray-100 ${FONT_SIZE_CLASSES[fontSize]} prose dark:prose-invert prose-headings:font-story prose-headings:text-amber-800 dark:prose-headings:text-amber-300 max-w-none`}
-      >
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{page.content}</ReactMarkdown>
+      {/* Scrollable text below */}
+      <div className="flex-1 overflow-y-auto px-6 py-6 md:px-10">
+        <div
+          className={`w-full max-w-prose mx-auto font-story text-gray-800 dark:text-gray-100 ${FONT_SIZE_CLASSES[fontSize]} prose dark:prose-invert prose-headings:font-story prose-headings:text-amber-800 dark:prose-headings:text-amber-300 max-w-none`}
+        >
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{page.content}</ReactMarkdown>
+        </div>
       </div>
     </div>
   );
