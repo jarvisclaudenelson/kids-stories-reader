@@ -34,8 +34,8 @@ export async function fetchChapterImages(chapterNumber: number): Promise<Set<num
     const files: GitHubFile[] = await res.json();
     const pages = new Set<number>();
     for (const file of files) {
-      // filenames like "1-4.png" → page 4
-      const match = file.name.match(/^\d+-(\d+)\.png$/);
+      // filenames like "page-4.png" → page 4
+      const match = file.name.match(/^page-(\d+)\.png$/);
       if (match) pages.add(parseInt(match[1], 10));
     }
     return pages;
@@ -45,5 +45,5 @@ export async function fetchChapterImages(chapterNumber: number): Promise<Set<num
 }
 
 export function getImageUrl(chapterNumber: number, pageNumber: number): string {
-  return `${RAW_BASE}/images/chapter${chapterNumber}/${chapterNumber}-${pageNumber}.png`;
+  return `${RAW_BASE}/images/chapter${chapterNumber}/page-${pageNumber}.png`;
 }

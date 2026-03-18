@@ -27,7 +27,7 @@ export default function PageContent({ page, fontSize }: Props) {
       )}
 
       {/* Scrollable text below */}
-      <div className="flex-1 overflow-y-auto px-6 py-6 md:px-10">
+      <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8">
         <div
           className={`w-full max-w-prose mx-auto font-story text-gray-800 dark:text-gray-100 ${FONT_SIZE_CLASSES[fontSize]} prose dark:prose-invert prose-headings:font-story prose-headings:text-amber-800 dark:prose-headings:text-amber-300 max-w-none`}
         >
