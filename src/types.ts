@@ -8,6 +8,7 @@ export interface Chapter {
   title: string;
   number: number;
   pages: StoryPage[];
+  format: 'prose' | 'graphic-novel';
 }
 
 export type FontSize = 'sm' | 'md' | 'lg' | 'xl';

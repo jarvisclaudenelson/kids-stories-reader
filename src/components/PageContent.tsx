@@ -6,10 +6,19 @@ import { StoryPage, FontSize, FONT_SIZE_CLASSES } from '../types';
 interface Props {
   page: StoryPage;
   fontSize: FontSize;
+  format?: 'prose' | 'graphic-novel';
 }
 
-export default function PageContent({ page, fontSize }: Props) {
+/** Strip HTML comments like <!-- PROMPT: ... --> from text. */
+function stripHtmlComments(text: string): string {
+  return text.replace(/<!--[\s\S]*?-->/g, '').trim();
+}
+
+export default function PageContent({ page, fontSize, format = 'prose' }: Props) {
   const [imgError, setImgError] = useState(false);
+  const isGN = format === 'graphic-novel';
+
+  const displayContent = isGN ? stripHtmlComments(page.content) : page.content;
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -19,7 +28,7 @@ export default function PageContent({ page, fontSize }: Props) {
           <img
             src={page.imageUrl}
             alt={`Illustration for page ${page.pageNumber}`}
-            className="w-full max-h-52 object-cover"
+            className={`w-full object-cover ${isGN ? 'max-h-[70vh]' : 'max-h-52'}`}
             onError={() => setImgError(true)}
             loading="lazy"
           />
@@ -27,11 +36,11 @@ export default function PageContent({ page, fontSize }: Props) {
       )}
 
       {/* Scrollable text below */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8">
+      <div className={`flex-1 overflow-y-auto ${isGN ? 'px-6 py-8 md:px-12' : 'px-4 py-6 md:px-8'}`}>
         <div
-          className={`w-full max-w-prose mx-auto font-story text-gray-800 dark:text-gray-100 ${FONT_SIZE_CLASSES[fontSize]} prose dark:prose-invert prose-headings:font-story prose-headings:text-amber-800 dark:prose-headings:text-amber-300 max-w-none`}
+          className={`w-full max-w-prose mx-auto font-story text-gray-800 dark:text-gray-100 ${isGN ? 'text-xl leading-9 text-center' : FONT_SIZE_CLASSES[fontSize]} prose dark:prose-invert prose-headings:font-story prose-headings:text-amber-800 dark:prose-headings:text-amber-300 max-w-none`}
         >
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{page.content}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{displayContent}</ReactMarkdown>
         </div>
       </div>
     </div>

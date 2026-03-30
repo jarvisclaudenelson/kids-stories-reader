@@ -1,6 +1,21 @@
+/** Detect whether the markdown has graphic-novel format in its frontmatter. */
+export function detectFormat(markdown: string): 'prose' | 'graphic-novel' {
+  const fmMatch = markdown.match(/^---\n([\s\S]*?)\n---/);
+  if (fmMatch && /format:\s*graphic-novel/.test(fmMatch[1])) {
+    return 'graphic-novel';
+  }
+  return 'prose';
+}
+
+/** Strip YAML frontmatter block from the top of markdown content. */
+export function stripFrontmatter(markdown: string): string {
+  return markdown.replace(/^---\n[\s\S]*?\n---\n*/, '');
+}
+
 /** Split markdown content into pages using --- as the page separator. */
 export function parsePages(markdown: string): string[] {
-  return markdown
+  const stripped = stripFrontmatter(markdown);
+  return stripped
     .split(/\n---\n/)
     .map((p) => p.trim())
     .filter((p) => p.length > 0);

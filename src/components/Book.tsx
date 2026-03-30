@@ -131,7 +131,7 @@ export default function Book({ chapters, fontSize, chapterIndex, onChapterChange
             className="absolute inset-0 cursor-grab active:cursor-grabbing"
             style={{ touchAction: 'pan-y' }}
           >
-            <PageContent page={page} fontSize={fontSize} />
+            <PageContent page={page} fontSize={fontSize} format={chapter.format} />
           </motion.div>
         </AnimatePresence>
 

@@ -6,7 +6,7 @@ import {
   getImageUrl,
 } from '../api/github';
 import { Chapter } from '../types';
-import { parsePages, getChapterNumber, extractTitle } from '../utils/parseStory';
+import { parsePages, getChapterNumber, extractTitle, detectFormat } from '../utils/parseStory';
 
 export function useStories() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
@@ -39,6 +39,7 @@ export function useStories() {
               title: extractTitle(content, `Chapter ${chapterNum}`),
               number: chapterNum,
               pages,
+              format: detectFormat(content),
             } satisfies Chapter;
           }),
         );
