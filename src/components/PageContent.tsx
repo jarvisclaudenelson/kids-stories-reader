@@ -18,7 +18,7 @@ export default function PageContent({ page, fontSize, format = 'prose' }: Props)
   const [imgError, setImgError] = useState(false);
   const isGN = format === 'graphic-novel';
 
-  const displayContent = isGN ? stripHtmlComments(page.content) : page.content;
+  const displayContent = stripHtmlComments(page.content);
 
   return (
     <div className="flex flex-col w-full h-full">
